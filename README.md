@@ -171,26 +171,3 @@ As with anything tech, the field of AI and ML is ever-evolving. Keeping this gui
 | Image Augmentation (Rotation) | \( R \) | \( R = \text{Rotate Matrix} \times I \) |
 
 ---
-
-## About
-
-No description, website, or topics provided.
-
-## Resources
-
-- **Readme**
-- **License**: MIT license
-
-## Activity
-
-- **Stars**: 0 stars
-- **Watchers**: 1 watching
-- **Forks**: 0 forks
-
-## Footer
-
-© 2023 GitHub, Inc.
-
----
-
-This guide aims to serve as a comprehensive resource for anyone interested in AI and Machine Learning, from beginners to seasoned professionals. It covers a wide range of topics, libraries, and equations that are essential in the field. Whether you're just starting out or are already deep in the trenches, this guide is designed to be your one-stop reference.
