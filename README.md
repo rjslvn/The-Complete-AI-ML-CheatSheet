@@ -162,3 +162,44 @@ Note: The table draws parallels between foundational physical concepts and AI pr
 | **Image Augmentation (Rotation)** | \( R \) | \( R = \text{Rotate Matrix} \times I \) |
 
 Note: Each mode (voice, text, sight) in AI perception utilizes various equations and transformations to process and understand the data. The above table offers a foundational look into some of these equations. While each equation provides a theoretical foundation, the practical implementation might involve additional considerations and complexities.
+Of course! Here are reference equation tables for the Text, Voice, and Vision modalities in AI.
+
+---
+
+## 📖 **Text (NLP & NLU) - Equation Reference Table**
+
+| Equation | Caption | Description | What to Watch For |
+|---|---|---|---|
+| \( TF(t) \) | Term Frequency | Measures the frequency of a term in a document. | Overemphasis on common terms. |
+| \( IDF(t) \) | Inverse Document Frequency | Weighs down terms that appear frequently across many documents. | Avoid zero values (use smoothing). |
+| \( TF-IDF(t) \) | Term Frequency-Inverse Document Frequency | Used for ranking importance of terms in a document. | Proper normalization. |
+| \( P(w_n|w_1,...,w_{n-1}) \) | Language Model Probability | Probability of a word sequence. | Requires huge data & can be computationally intensive. |
+| \( \vec{v} = f(w_1, w_2,...,w_n) \) | Word Embedding | Vector representation of words or phrases. | Ensure embeddings capture semantic meanings. |
+
+---
+
+## 🎙️ **Voice (Speech Recognition & Generation) - Equation Reference Table**
+
+| Equation | Caption | Description | What to Watch For |
+|---|---|---|---|
+| \( X(\omega) = \mathcal{F}(x(t)) \) | Fourier Transform | Converts signal from time domain to frequency domain. | Windowing artifacts. |
+| \( MFCC = \mathcal{DCT}(\log(Mel(spectrum))) \) | Mel-frequency Cepstral Coefficients | Represents short-term power spectrum of sound. | Number of coefficients & filtering. |
+| \( P(S|X) \) | Posterior Probability | Probability of a speech pattern given an acoustic signal. | Requires robust acoustic models. |
+| \( CTC = -\log(P(Y|X)) \) | Connectionist Temporal Classification | Loss function for sequence modeling without alignment. | Handle padding carefully. |
+| \( S(t) = \mathcal{TTS}(T) \) | Text-to-Speech | Converts textual data into speech waveform. | Ensure natural prosody & intonation. |
+
+---
+
+## 🖼️ **Vision (Image Recognition & Generation) - Equation Reference Table**
+
+| Equation | Caption | Description | What to Watch For |
+|---|---|---|---|
+| \( I(x,y) = f(x,y,z,\lambda) \) | Image Intensity Function | Describes brightness or color at (x,y). | Lighting changes & reflections. |
+| \( G(x,y) = \nabla I(x,y) \) | Gradient Magnitude | Highlights intensity changes & edges in an image. | Noise amplification. |
+| \( C(I) = \sigma(I \ast K) \) | Convolution Operation | Applies a filter (kernel) \( K \) to an image \( I \). | Proper filter size & stride. |
+| \( P(c|x) \) | Object Classification | Probability of class \( c \) given image \( x \). | Requires balanced datasets. |
+| \( GAN = \min_G \max_D V(D,G) \) | Generative Adversarial Network | Two-network setup for generating artificial images. | Mode collapse & training instability. |
+
+---
+
+**Note**: This set of tables provides a primer on key equations for each modality. It's essential to dig deeper into each one for practical applications and further understanding. They act as a foundation and reference for both newcomers and experts in AI.
