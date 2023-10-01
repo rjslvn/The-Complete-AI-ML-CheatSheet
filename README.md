@@ -1,6 +1,6 @@
 
 # AI & Machine Learning: The Ultimate One-Stop Reference Guide
-
+Rajan Selvan, Oct 1 2023 
 ---
 
 Welcome to the one-place-for-all guide, tailored for both the seasoned professional and the ambitious newcomer, looking to delve into the vast universe of AI and machine learning tools and libraries.
