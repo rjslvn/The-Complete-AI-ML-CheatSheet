@@ -1,3 +1,60 @@
+
+### ArchAI v1.1 System Card: In-Depth Architecture Details
+
+---
+
+#### Low-Level Model Architecture Information:
+
+- **Base Architecture**: ResNet-152
+  - **Layers Configuration**:
+    - Conv1: 64 filters, kernel size 7x7, stride 2
+    - MaxPool: 3x3, stride 2
+    - Residual Blocks: [3, 8, 36, 3] (convolutional layers per block)
+    - Global Average Pooling
+    - Fully Connected Layer: 1000 units (output)
+  
+- **Custom Convolutional Layers**: 
+  - ConvCustom1: 256 filters, kernel size 3x3, stride 1, padding 'same'
+  - ConvCustom2: 512 filters, kernel size 3x3, stride 1, padding 'same'
+  - Regularization: Dropout layers with rate 0.5
+  
+- **Activation Functions**: 
+  - Hidden Layers: ReLU (in-place operation to save memory)
+  - Output Layer: Softmax (for multi-class classification)
+  
+- **Optimizer & Gradients**:
+  - **Optimizer**: Adam
+    - Beta1: 0.9
+    - Beta2: 0.999
+    - Epsilon: 1e-08
+  - **Learning Rate Schedule**: 
+    - Initial Rate: 0.001
+    - Decay Steps: Every 10 epochs
+    - Decay Rate: 0.9
+  
+  - **Gradient Processing**:
+    - Clipping: Gradient values clipped to [-1, 1]
+    - Normalization: Layer-wise gradient normalization
+    - Update Rule: `new_weight = old_weight - learning_rate * clipped_gradient`
+
+- **Backpropagation Algorithm**: 
+  - Algorithm: Stochastic Gradient Descent (SGD) with momentum
+  - Momentum Term: 0.9
+  
+- **Regularization & Augmentation Techniques**:
+  - L1/L2 Regularization: Not used (relying on Dropout)
+  - Augmentation: Rotations (±30 degrees), Flips (horizontal), Zoom (1.1x)
+
+- **Hardware Acceleration**:
+  - CUDA Enabled: True
+  - Parallelism: Data parallelism across multiple GPUs
+  - Memory Optimization: Gradient accumulation for large mini-batches
+
+---
+
+This section aims to provide the most granular details about the underlying architecture and algorithms used in ArchAI v1.1, including low-level layer configurations, optimizer parameters, and gradient processing techniques.
+
+
 ## Equation Reference Table 1: Model Equations and Details
 
 | Equation | Caption | Model Variables | Expected Values | What to Watch For |
