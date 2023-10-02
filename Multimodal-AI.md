@@ -53,7 +53,57 @@
 ---
 
 This section aims to provide the most granular details about the underlying architecture and algorithms used in ArchAI v1.1, including low-level layer configurations, optimizer parameters, and gradient processing techniques.
+import tensorflow as tf
 
+      # Hyperparameters
+initial_lr = 0.001
+decay_steps = 10
+decay_rate = 0.9
+
+# Learning Rate Schedule
+lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
+    initial_lr, decay_steps=decay_steps, decay_rate=decay_rate, staircase=True
+)
+
+# Optimizer
+optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
+
+# Base ResNet-152 Model
+base_model = tf.keras.applications.ResNet152(weights='imagenet', include_top=False, input_shape=sight_input_shape)
+
+# Custom Convolutional Layers
+conv_custom1 = tf.keras.layers.Conv2D(256, (3, 3), strides=(1, 1), padding='same', activation='relu')
+conv_custom2 = tf.keras.layers.Conv2D(512, (3, 3), strides=(1, 1), padding='same', activation='relu')
+
+# Model Architecture
+voice_input = tf.keras.layers.Input(shape=voice_input_shape)
+text_input = tf.keras.layers.Input(shape=text_input_shape)
+sight_input = tf.keras.layers.Input(shape=sight_input_shape)
+
+# Voice, Text, and Sight Features
+voice_features = ...  # Your voice feature extraction logic here
+text_features = ...  # Your text feature extraction logic here
+sight_features = base_model(sight_input)
+sight_features = conv_custom1(sight_features)
+sight_features = conv_custom2(sight_features)
+
+# Fusion Mechanism
+fused_features = tf.keras.layers.Concatenate()([voice_features, text_features, sight_features])
+fused_features = tf.keras.layers.GlobalAveragePooling2D()(fused_features)
+fused_features = tf.keras.layers.Dropout(0.5)(fused_features)
+
+# Fully Connected Layer
+output = tf.keras.layers.Dense(1000, activation='softmax')(fused_features)
+
+# Final Model
+model = tf.keras.Model(inputs=[voice_input, text_input, sight_input], outputs=output)
+
+# Compile Model
+model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+
+# Summary
+model.summary()
+      
 
 ## Equation Reference Table 1: Model Equations and Details
 
