@@ -54,8 +54,8 @@
 
 This section aims to provide the most granular details about the underlying architecture and algorithms used in ArchAI v1.1, including low-level layer configurations, optimizer parameters, and gradient processing techniques.
 import tensorflow as tf
-
-      # Hyperparameters
+   ```
+ # Hyperparameters
 initial_lr = 0.001
 decay_steps = 10
 decay_rate = 0.9
@@ -103,8 +103,8 @@ model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['ac
 
 # Summary
 model.summary()
-      
 
+```
 ## Equation Reference Table 1: Model Equations and Details
 
 | Equation | Caption | Model Variables | Expected Values | What to Watch For |
