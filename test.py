@@ -62,18 +62,6 @@ def transform_sight(loaded_image):
     outputs = model(**inputs)
     return outputs.last_hidden_state
 
-# Action 5: Feature Engineering for Voice
-def feature_voice(logits):
-    return logits
-
-# Action 6: Feature Engineering for Text
-def feature_text(text_vector):
-    return text_vector
-
-# Action 7: Feature Engineering for Sight
-def feature_sight(sight_transformed):
-    return sight_transformed
-
 # Action 8: Implement Early Fusion
 def early_fusion(voice_features, text_features, sight_features):
     return torch.cat((voice_features, text_features, sight_features), dim=-1)
@@ -112,37 +100,54 @@ hybrid_fusion_output = hybrid_fusion(early_fusion_output, late_fusion_output)
 model = build_multimodal_model(early_fusion_output.shape[1])
 model.compile(optimizer='adam', loss=custom_loss)
 
-import numpy as np
-import tensorflow as tf
-import torch
-from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor, BertTokenizer, BertModel, ViTFeatureExtractor, ViTModel
-from gensim.models import Word2Vec
-from sklearn.feature_extraction.text import TfidfVectorizer
-import librosa
-from tensorflow.keras.layers import Input, Dense, Concatenate
-from tensorflow.keras.models import Model
 
-num_epochs = 10
-batch_size = 32
-num_classes = 10
-num_frames = 100
-num_mfcc_features = 13
-num_text_features = 1000
-image_height = 128
-image_width = 128
-num_channels = 3
-
+# Input Shapes
 voice_input_shape = (num_frames, num_mfcc_features)
 text_input_shape = (num_text_features,)
 sight_input_shape = (image_height, image_width, num_channels)
 
-def custom_loss(y_true, y_pred):
-    voice_loss = tf.keras.losses.MeanSquaredError()(y_true, y_pred)
-    text_loss = tf.keras.losses.MeanSquaredError()(y_true, y_pred)
-    sight_loss = tf.keras.losses.MeanSquaredError()(y_true, y_pred)
-    fusion_loss = voice_loss + text_loss + sight_loss
-    final_loss = voice_loss + text_loss + sight_loss + 0.1 * fusion_loss
-    return final_loss
+# Learning Rate Schedule
+lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(initial_lr, decay_steps=decay_steps, decay_rate=decay_rate, staircase=True)
+
+# Optimizer
+optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
+
+# Base ResNet-152 Model
+base_model = tf.keras.applications.ResNet152(weights='imagenet', include_top=False, input_shape=sight_input_shape)
+
+# Custom Convolutional Layers
+conv_custom1 = tf.keras.layers.Conv2D(256, (3, 3), strides=(1, 1), padding='same', activation='relu')
+conv_custom2 = tf.keras.layers.Conv2D(512, (3, 3), strides=(1, 1), padding='same', activation='relu')
+
+# Model Architecture
+voice_input = tf.keras.layers.Input(shape=voice_input_shape)
+text_input = tf.keras.layers.Input(shape=text_input_shape)
+sight_input = tf.keras.layers.Input(shape=sight_input_shape)
+
+# Voice, Text, and Sight Features
+voice_features = tf.keras.layers.LSTM(128)(voice_input)
+text_features = tf.keras.layers.Dense(128, activation='relu')(text_input)
+sight_features = base_model(sight_input)
+sight_features = conv_custom1(sight_features)
+sight_features = conv_custom2(sight_features)
+sight_features = tf.keras.layers.GlobalAveragePooling2D()(sight_features)
+
+# Fusion Mechanism
+fused_features = tf.keras.layers.Concatenate()([voice_features, text_features, sight_features])
+fused_features = tf.keras.layers.Dropout(0.5)(fused_features)
+
+# Fully Connected Layer
+output = tf.keras.layers.Dense(num_classes, activation='softmax')(fused_features)
+
+# Final Model
+model = tf.keras.Model(inputs=[voice_input, text_input, sight_input], outputs=output)
+
+# Compile Model
+model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+
+# Summary
+model.summary()
+
 
 def build_multimodal_model(input_shape):
     input_layer = Input(shape=input_shape)
@@ -172,24 +177,6 @@ def transform_sight(loaded_image):
     model = ViTModel.from_pretrained('google/vit-base-patch16-224-in21k')
     inputs = feature_extractor(loaded_image, return_tensors="pt")
 
-def feature_voice(logits):
-    pass
-
-def feature_text(text_vector):
-    return text_vector
-
-def feature_sight(sight_transformed):
-    return sight_transformed
-
-def early_fusion(voice_features, text_features, sight_features):
-    return torch.cat((voice_features, text_features, sight_features), dim=-1)
-
-def late_fusion(voice_output, text_output, sight_output):
-    return 0.3 * voice_output + 0.3 * text_output + 0.4 * sight_output
-
-def hybrid_fusion(early_fusion_output, late_fusion_output):
-    return 0.5 * early_fusion_output + 0.5 * late_fusion_output
-
 def design_model(early_fusion_output, late_fusion_output):
     input_shapes = (early_fusion_output.shape[1],)
     voice_input = Input(shape=input_shapes)
@@ -210,3 +197,62 @@ model = build_multimodal_model(early_fusion_output.shape[1])
 model.compile(optimizer='adam', loss=custom_loss)
 
 
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+# Define the ResNet block
+class ResidualBlock(nn.Module):
+    def __init__(self, in_channels, out_channels, stride=1):
+        super(ResidualBlock, self).__init__()
+        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1)
+        self.bn1 = nn.BatchNorm2d(out_channels)
+        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1)
+        self.bn2 = nn.BatchNorm2d(out_channels)
+        self.shortcut = nn.Sequential()
+        if stride != 1 or in_channels != out_channels:
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride),
+                nn.BatchNorm2d(out_channels)
+            )
+    def forward(self, x):
+        out = torch.relu(self.bn1(self.conv1(x)))
+        out = self.bn2(self.conv2(out))
+        out += self.shortcut(x)
+        out = torch.relu(out)
+        return out
+
+# Define the ResNet-152 model
+class ResNet152(nn.Module):
+    def __init__(self, num_classes=10):
+        super(ResNet152, self).__init__()
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1)
+        self.bn1 = nn.BatchNorm2d(64)
+        self.layer1 = self._make_layer(64, 64, 3, stride=1)
+        self.layer2 = self._make_layer(64, 128, 8, stride=2)
+        self.layer3 = self._make_layer(128, 256, 36, stride=2)
+        self.layer4 = self._make_layer(256, 512, 3, stride=2)
+        self.linear = nn.Linear(512, num_classes)
+    
+    def _make_layer(self, in_channels, out_channels, num_blocks, stride):
+        strides = [stride] + [1] * (num_blocks - 1)
+        layers = []
+        for stride in strides:
+            layers.append(ResidualBlock(in_channels, out_channels, stride))
+            in_channels = out_channels
+        return nn.Sequential(*layers)
+    
+    def forward(self, x):
+        out = torch.relu(self.bn1(self.conv1(x)))
+        out = self.layer1(out)
+        out = self.layer2(out)
+        out = self.layer3(out)
+        out = self.layer4(out)
+        out = torch.avg_pool2d(out, 4)
+        out = out.view(out.size(0), -1)
+        out = self.linear(out)
+        return out
+
+# Initialize the model and optimizer
+model = ResNet152(num_classes=10)
+optimizer = optim.Adam(model.parameters(), lr=0.0009)
