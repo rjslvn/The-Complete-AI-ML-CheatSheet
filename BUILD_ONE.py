@@ -198,4 +198,3 @@ model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['ac
 
 # Summary
 model.summary()
-
