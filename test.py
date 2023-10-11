@@ -195,7 +195,9 @@ late_fusion_output = late_fusion(voice_logits, text_vector, sight_vector)
 hybrid_fusion_output = hybrid_fusion(early_fusion_output, late_fusion_output)
 model = build_multimodal_model(early_fusion_output.shape[1])
 model.compile(optimizer='adam', loss=custom_loss)
-
+----------
+----------
+# try 2
 
 import torch
 import torch.nn as nn
