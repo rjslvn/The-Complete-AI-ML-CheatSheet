@@ -55,54 +55,70 @@
 This section aims to provide the most granular details about the underlying architecture and algorithms used in ArchAI v1.1, including low-level layer configurations, optimizer parameters, and gradient processing techniques.
 import tensorflow as tf
    ```
- # Hyperparameters
-initial_lr = 0.001
-decay_steps = 10
-decay_rate = 0.9
+import cv2
+import numpy as np
 
-# Learning Rate Schedule
-lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_lr, decay_steps=decay_steps, decay_rate=decay_rate, staircase=True
-)
+def load_yolo():
+    net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
+    layer_names = net.getLayerNames()
+    output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+    return net, output_layers
 
-# Optimizer
-optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
+def detect_objects(net, output_layers, frame):
+    height, width, _ = frame.shape
+    blob = cv2.dnn.blobFromImage(frame, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
+    net.setInput(blob)
+    outs = net.forward(output_layers)
+    return outs, width, height
 
-# Base ResNet-152 Model
-base_model = tf.keras.applications.ResNet152(weights='imagenet', include_top=False, input_shape=sight_input_shape)
+def process_detections(outs, width, height):
+    class_ids = []
+    confidences = []
+    boxes = []
+    for out in outs:
+        for detection in out:
+            scores = detection[5:]
+            class_id = np.argmax(scores)
+            confidence = scores[class_id]
+            if confidence > 0.5:
+                center_x, center_y, w, h = (detection[0:4] * np.array([width, height, width, height])).astype('int')
+                x = int(center_x - w / 2)
+                y = int(center_y - h / 2)
+                boxes.append([x, y, w, h])
+                confidences.append(float(confidence))
+                class_ids.append(class_id)
+    return boxes, confidences, class_ids
 
-# Custom Convolutional Layers
-conv_custom1 = tf.keras.layers.Conv2D(256, (3, 3), strides=(1, 1), padding='same', activation='relu')
-conv_custom2 = tf.keras.layers.Conv2D(512, (3, 3), strides=(1, 1), padding='same', activation='relu')
+def main():
+    net, output_layers = load_yolo()
+    cap = cv2.VideoCapture(0)
 
-# Model Architecture
-voice_input = tf.keras.layers.Input(shape=voice_input_shape)
-text_input = tf.keras.layers.Input(shape=text_input_shape)
-sight_input = tf.keras.layers.Input(shape=sight_input_shape)
+    while(cap.isOpened()):
+        ret, frame = cap.read()
+        if ret:
+            outs, width, height = detect_objects(net, output_layers, frame)
+            boxes, confidences, class_ids = process_detections(outs, width, height)
+            indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
 
-# Voice, Text, and Sight Features
-voice_features = ...  # Your voice feature extraction logic here
-text_features = ...  # Your text feature extraction logic here
-sight_features = base_model(sight_input)
-sight_features = conv_custom1(sight_features)
-sight_features = conv_custom2(sight_features)
+            for i in range(len(boxes)):
+                if i in indexes:
+                    x, y, w, h = boxes[i]
+                    label = str(classes[class_ids[i]])  # classes should be loaded from a file or list
+                    confidence = confidences[i]
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), (255,0,0), 2)
+                    cv2.putText(frame, label, (x, y + 30), cv2.FONT_HERSHEY_PLAIN, 2, (255,0,0), 2)
 
-# Fusion Mechanism
-fused_features = tf.keras.layers.Concatenate()([voice_features, text_features, sight_features])
-fused_features = tf.keras.layers.GlobalAveragePooling2D()(fused_features)
-fused_features = tf.keras.layers.Dropout(0.5)(fused_features)
+            cv2.imshow('frame', frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        else:
+            break
 
-# Fully Connected Layer
-output = tf.keras.layers.Dense(1000, activation='softmax')(fused_features)
+    cap.release()
+    cv2.destroyAllWindows()
 
-# Final Model
-model = tf.keras.Model(inputs=[voice_input, text_input, sight_input], outputs=output)
-
-# Compile Model
-model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
-
-# Summary
-model.summary()
+if __name__ == "__main__":
+    main()
 
 ```
 ## Equation Reference Table 1: Model Equations and Details
