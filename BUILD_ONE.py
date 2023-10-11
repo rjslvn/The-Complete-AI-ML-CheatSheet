@@ -1,5 +1,121 @@
 import numpy as np
 import tensorflow as tf
+from transformers import (Wav2Vec2ForCTC, Wav2Vec2Processor, BertTokenizer, 
+                          BertModel, ViTFeatureExtractor, ViTModel)
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+
+# ========================= HYPERPARAMETERS =========================
+
+NUM_EPOCHS = 10
+BATCH_SIZE = 32
+NUM_CLASSES = 10
+NUM_FRAMES = 100
+NUM_MFCC_FEATURES = 13
+NUM_TEXT_FEATURES = 1000
+IMAGE_HEIGHT = 128
+IMAGE_WIDTH = 128
+NUM_CHANNELS = 3
+
+VOICE_INPUT_SHAPE = (NUM_FRAMES, NUM_MFCC_FEATURES)
+TEXT_INPUT_SHAPE = (NUM_TEXT_FEATURES,)
+SIGHT_INPUT_SHAPE = (IMAGE_HEIGHT, IMAGE_WIDTH, NUM_CHANNELS)
+
+
+# ========================= TRANSFORMERS =========================
+
+def transform_voice(normalized_audio):
+    processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base-960h")
+    model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-base-960h")
+    input_values = processor(normalized_audio, return_tensors="pt").input_values
+    with torch.no_grad():
+        logits = model(input_values).logits
+    return logits
+
+def transform_text(tokenized_text):
+    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    model = BertModel.from_pretrained('bert-base-uncased')
+    inputs = tokenizer(tokenized_text, return_tensors="pt")
+    outputs = model(**inputs)
+    return outputs.last_hidden_state
+
+def transform_sight(loaded_image):
+    feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224-in21k')
+    model = ViTModel.from_pretrained('google/vit-base-patch16-224-in21k')
+    inputs = feature_extractor(loaded_image, return_tensors="pt")
+    outputs = model(**inputs)
+    return outputs.last_hidden_state
+
+
+# ========================= FUSION MECHANISMS =========================
+
+def early_fusion(voice_features, text_features, sight_features):
+    return torch.cat((voice_features, text_features, sight_features), dim=-1)
+
+def late_fusion(voice_output, text_output, sight_output):
+    return 0.3 * voice_output + 0.3 * text_output + 0.4 * sight_output
+
+def hybrid_fusion(early_fusion_output, late_fusion_output):
+    return 0.5 * early_fusion_output + 0.5 * late_fusion_output
+
+
+# ========================= CUSTOM LOSS FUNCTION =========================
+
+def custom_loss(y_true_voice, y_true_text, y_true_sight, y_pred_voice, y_pred_text, y_pred_sight):
+    voice_loss = tf.keras.losses.MeanSquaredError()(y_true_voice, y_pred_voice)
+    text_loss = tf.keras.losses.MeanSquaredError()(y_true_text, y_pred_text)
+    sight_loss = tf.keras.losses.MeanSquaredError()(y_true_sight, y_pred_sight)
+    fusion_loss = voice_loss + text_loss + sight_loss
+    final_loss = voice_loss + text_loss + sight_loss + 0.1 * fusion_loss
+    return final_loss
+
+
+# ========================= MULTIMODAL MODEL =========================
+
+class MultimodalModel(tf.keras.Model):
+    def __init__(self, voice_model, text_model, sight_model):
+        super(MultimodalModel, self).__init__()
+        self.voice_model = voice_model
+        self.text_model = text_model
+        self.sight_model = sight_model
+
+    def call(self, inputs, training=False):
+        voice_input, text_input, sight_input = inputs
+        voice_features = self.voice_model(voice_input)
+        text_features = self.text_model(text_input)
+        sight_features = self.sight_model(sight_input)
+        # Implement your fusion and final output code here
+        # ...
+
+
+# ========================= RESNET-152 MODEL =========================
+
+class ResidualBlock(nn.Module):
+    # ... (same as your code)
+
+class ResNet152(nn.Module):
+    # ... (same as your code)
+
+# Initialize the model and optimizer
+resnet_model = ResNet152(num_classes=NUM_CLASSES)
+optimizer = optim.Adam(resnet_model.parameters(), lr=0.0009)
+
+
+# ========================= UTILITIES =========================
+
+def evaluate_model(model, validation_data):
+    loss, accuracy = model.evaluate(validation_data)
+    print(f'Validation Loss: {loss}, Validation Accuracy: {accuracy}')
+
+# Usage: evaluate_model(model, validation_data)
+=========================================================
+                      
+                      
+                      
+                      import numpy as np
+import tensorflow as tf
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor, BertTokenizer, BertModel, ViTFeatureExtractor, ViTModel
 import torch
 
@@ -99,6 +215,50 @@ hybrid_fusion_output = hybrid_fusion(early_fusion_output, late_fusion_output)
 
 model = build_multimodal_model(early_fusion_output.shape[1])
 model.compile(optimizer='adam', loss=custom_loss)
+
+# Assuming y_true_voice, y_true_text, and y_true_sight are the true labels for each modality
+def custom_loss(y_true_voice, y_true_text, y_true_sight, y_pred_voice, y_pred_text, y_pred_sight):
+    voice_loss = tf.keras.losses.MeanSquaredError()(y_true_voice, y_pred_voice)
+    text_loss = tf.keras.losses.MeanSquaredError()(y_true_text, y_pred_text)
+    sight_loss = tf.keras.losses.MeanSquaredError()(y_true_sight, y_pred_sight)
+    fusion_loss = voice_loss + text_loss + sight_loss
+    final_loss = voice_loss + text_loss + sight_loss + 0.1 * fusion_loss
+    return final_loss
+# Assume you have a custom model class
+class MultimodalModel(tf.keras.Model):
+    def __init__(self, ...):  # add necessary arguments
+        super(MultimodalModel, self).__init__()
+        # Define your layers and models for voice, text, and sight
+        self.voice_model = ...
+        self.text_model = ...
+        self.sight_model = ...
+
+    def call(self, inputs, training=False):
+        voice_input, text_input, sight_input = inputs
+        voice_features = self.voice_model(voice_input)
+        text_features = self.text_model(text_input)
+        sight_features = self.sight_model(sight_input)
+        # ... rest of your code for fusion and final output
+
+def transform_voice(normalized_audio):
+    try:
+        processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-base-960h")
+        model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-base-960h")
+        input_values = processor(normalized_audio, return_tensors="pt").input_values
+        with torch.no_grad():
+            logits = model(input_values).logits
+        return logits
+    except Exception as e:
+        print(f"Error in transform_voice: {e}")
+        # Handle or raise the error as needed
+
+
+def evaluate_model(model, validation_data):
+    loss, accuracy = model.evaluate(validation_data)
+    print(f'Validation Loss: {loss}, Validation Accuracy: {accuracy}')
+
+# Usage:
+evaluate_model(model, validation_data)
 
 
 # Input Shapes
