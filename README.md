@@ -4,7 +4,6 @@
 
 ---
 
-Certainly!
 
 ### 🌱 Starting Out: Onboarding for Newbies
 
