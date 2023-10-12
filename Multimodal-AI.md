@@ -1,3 +1,67 @@
+## Machine Learning Pipeline 
+
+### Understanding the Model
+- 📚 [TensorFlow](https://www.tensorflow.org/)
+- 🧠 [PyTorch](https://pytorch.org/)
+- 🧪 [Keras](https://keras.io/)
+- 📊 [MXNet](https://mxnet.apache.org/)
+- ☕ [Caffe](http://caffe.berkeleyvision.org/)
+- 📘 [Theano](http://www.deeplearning.net/software/theano/)
+- 🖥️ [CNTK](https://docs.microsoft.com/en-us/cognitive-toolkit/)
+- 🔄 [JAX](https://github.com/google/jax)
+- 💼 [DL4J](https://deeplearning4j.org/)
+- 🎯 [PaddlePaddle](https://www.paddlepaddle.org.cn/)
+
+### Data Preprocessing
+- 📜 [NLTK](https://www.nltk.org/)
+- 📰 [spaCy](https://spacy.io/)
+- 📝 [TextBlob](https://textblob.readthedocs.io/en/dev/)
+- 📦 [Gensim](https://radimrehurek.com/gensim/)
+- 🧹 [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/)
+- 🧹 [Tidytext](https://www.tidytextmining.com/)
+- 🔍 [Regex](https://docs.python.org/3/library/re.html)
+- 🌐 [Clean-text](https://pypi.org/project/clean-text/)
+- 🔡 [unidecode](https://pypi.org/project/Unidecode/)
+- 🔧 [Preprocess](https://github.com/s/preprocess)
+
+### Training
+- 📊 [Pandas](https://pandas.pydata.org/)
+- 📈 [Dask](https://dask.org/)
+- 📁 [Vaex](https://vaex.io/)
+- 🔢 [NumPy](https://numpy.org/)
+- 📋 [CSVKit](https://csvkit.readthedocs.io/en/latest/)
+- 📉 [OpenRefine](https://openrefine.org/)
+- 📊 [Trifacta](https://www.trifacta.com/)
+- 📊 [Excel](https://www.microsoft.com/en-us/microsoft-365/excel)
+- 📊 [Google Sheets](https://www.google.com/sheets)
+- 📊 [Datawrangler](https://github.com/mitdbg/datawrangler)
+
+### Inference
+- No specific libraries mentioned.
+
+### Ethics & Bias
+- 📊 [Fairness Indicators](https://www.tensorflow.org/responsible_ai/fairness_indicators)
+- 🔄 [AI Fairness 360](https://aif360.mybluemix.net/)
+- 🎚️ [Fairlearn](https://fairlearn.org/)
+- 📚 [Fairkit-learn](https://fairkit-learn.org/)
+- 🧪 [Themis](https://github.com/cosmicBboy/themis)
+- 🍋 [Aequitas](https://github.com/dssg/aequitas)
+- 🌍 [LIME](https://github.com/marcotcr/lime)
+- 📊 [SHAP](https://github.com/slundberg/shap)
+- 🤖 [What-If Tool](https://pair-code.github.io/what-if-tool/)
+- 📊 [Explanatory Dashboard](https://github.com/aalok-sathe/explanatory)
+
+### Optimization & Efficiency
+- 🧮 [TensorFlow Lite](https://www.tensorflow.org/lite)
+- 🌌 [ONNX](https://onnx.ai/)
+- 📈 [PyTorch](https://pytorch.org/)
+- 🚀 [NVIDIA TensorRT](https://developer.nvidia.com/tensorrt)
+- 💼 [OpenVINO](https://software.intel.com/content/www/us/en/develop/tools/openvino-toolkit.html)
+- 💻 [Core ML](https://developer.apple.com/documentation/coreml)
+- 🌟 [Hummingbird](https://github.com/microsoft/hummingbird)
+- 🔍 [Netron](https://github.com/lutzroeder/Netron)
+- 💹 [Sparsity](https://pytorch.org/tutorials/intermediate/pruning_tutorial.html)
+- 📦 [Distiller](https://nervanasystems.github.io/distiller/)
 
 ### ArchAI v1.1 System Card: In-Depth Architecture Details
 
