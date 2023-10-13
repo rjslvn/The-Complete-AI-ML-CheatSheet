@@ -211,6 +211,7 @@ Multimodal AI integrates multiple types of data input, like voice, text, and sig
     **Text**: \( T_{\text{transform}} = \text{Embedding Matrix} \times \text{Word Token} \)  
     **Sight**: \( S_{\text{transform}} = I \otimes K \)  
 '''
+```
 # Import necessary libraries
 import json
 import nltk
@@ -286,7 +287,8 @@ create embeddings easily
     **Late Fusion**: \( LF = f(V_{\text{features}}) \oplus f(T_{\text{features}}) \oplus f(S_{\text{features}}) \)  
     **Hybrid Fusion**: \( HF = EF \oplus LF \)
 
-    Where \( \oplus \) denotes concatenation or another merging operation.
+    Where \( \oplus \) denotes concatenation or another merging operation.```
+```
 
 4. **Model Architecture**:
 
