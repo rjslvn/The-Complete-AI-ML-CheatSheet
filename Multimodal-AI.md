@@ -210,7 +210,7 @@ Multimodal AI integrates multiple types of data input, like voice, text, and sig
     **Voice**: \( V_{\text{transform}} = \text{FFT(Audio Sample)} \)  
     **Text**: \( T_{\text{transform}} = \text{Embedding Matrix} \times \text{Word Token} \)  
     **Sight**: \( S_{\text{transform}} = I \otimes K \)  
-'''
+
 # Import necessary libraries
 import json
 import nltk
@@ -271,7 +271,7 @@ with open('embeddings.json', 'w') as f:
     json.dump(combined_embeddings, f)
 
 print('Embeddings saved successfully!')
-'''
+
 create embeddings easily
 
 2. **Feature Engineering**: Extracting meaningful features from each mode.
