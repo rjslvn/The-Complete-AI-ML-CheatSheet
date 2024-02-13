@@ -79,7 +79,7 @@ This document provides streamlined instructions for configuring AI development e
 - **Install additional tools as needed (e.g., OpenCV for computer vision projects)**
   ```bash
   pip install opencv-python
-
+'''
 ### 🌱 Starting Out: Onboarding for Newbies
 
 - **Python**: Core programming language for AI development.
